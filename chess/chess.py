@@ -33,40 +33,40 @@ selection = 100
 valid_moves = []
 
 # load in game piece images (queen, king, rook, bishop, knight, pawn) x 2
-black_queen = pygame.image.load('C:/Users/david/Desktop/Ai&chess/chess/slike/black queen.png')
+black_queen = pygame.image.load('slike/black queen.png')
 black_queen = pygame.transform.scale(black_queen, (50, 50))
 black_queen_small = pygame.transform.scale(black_queen, (25, 25))
-black_king = pygame.image.load('C:/Users/david/Desktop/Ai&chess/chess/slike/black king.png')
+black_king = pygame.image.load('slike/black king.png')
 black_king = pygame.transform.scale(black_king, (50, 50))
 black_king_small = pygame.transform.scale(black_king, (25, 25))
-black_rook = pygame.image.load('C:/Users/david/Desktop/Ai&chess/chess/slike/black rook.png')
+black_rook = pygame.image.load('slike/black rook.png')
 black_rook = pygame.transform.scale(black_rook, (50, 50))
 black_rook_small = pygame.transform.scale(black_rook, (25, 25))
-black_bishop = pygame.image.load('C:/Users/david/Desktop/Ai&chess/chess/slike/black bishop.png')
+black_bishop = pygame.image.load('slike/black bishop.png')
 black_bishop = pygame.transform.scale(black_bishop, (50, 50))
 black_bishop_small = pygame.transform.scale(black_bishop, (25, 25))
-black_knight = pygame.image.load('C:/Users/david/Desktop/Ai&chess/chess/slike/black knight.png')
+black_knight = pygame.image.load('slike/black knight.png')
 black_knight = pygame.transform.scale(black_knight, (50, 50))
 black_knight_small = pygame.transform.scale(black_knight, (25, 25))
-black_pawn = pygame.image.load('C:/Users/david/Desktop/Ai&chess/chess/slike/black pawn.png')
+black_pawn = pygame.image.load('slike/black pawn.png')
 black_pawn = pygame.transform.scale(black_pawn, (50, 50))
 black_pawn_small = pygame.transform.scale(black_pawn, (25, 25))
-white_queen = pygame.image.load('C:/Users/david/Desktop/Ai&chess/chess/slike/white queen.png')
+white_queen = pygame.image.load('slike/white queen.png')
 white_queen = pygame.transform.scale(white_queen, (50, 50))
 white_queen_small = pygame.transform.scale(white_queen, (25, 25))
-white_king = pygame.image.load('C:/Users/david/Desktop/Ai&chess/chess/slike/white king.png')
+white_king = pygame.image.load('slike/white king.png')
 white_king = pygame.transform.scale(white_king, (50, 50))
 white_king_small = pygame.transform.scale(white_king, (25, 25))
-white_rook = pygame.image.load('C:/Users/david/Desktop/Ai&chess/chess/slike/white rook.png')
+white_rook = pygame.image.load('slike/white rook.png')
 white_rook = pygame.transform.scale(white_rook, (50, 50))
 white_rook_small = pygame.transform.scale(white_rook, (25, 25))
-white_bishop = pygame.image.load('C:/Users/david/Desktop/Ai&chess/chess/slike/white bishop.png')
+white_bishop = pygame.image.load('slike/white bishop.png')
 white_bishop = pygame.transform.scale(white_bishop, (50, 50))
 white_bishop_small = pygame.transform.scale(white_bishop, (25, 25))
-white_knight = pygame.image.load('C:/Users/david/Desktop/Ai&chess/chess/slike/white knight.png')
+white_knight = pygame.image.load('slike/white knight.png')
 white_knight = pygame.transform.scale(white_knight, (50, 50))
 white_knight_small = pygame.transform.scale(white_knight, (25, 25))
-white_pawn = pygame.image.load('C:/Users/david/Desktop/Ai&chess/chess/slike/white pawn.png')
+white_pawn = pygame.image.load('slike/white pawn.png')
 white_pawn = pygame.transform.scale(white_pawn, (50, 50))
 white_pawn_small = pygame.transform.scale(white_pawn, (25, 25))
 
@@ -184,7 +184,7 @@ def checking_king(position,color):
 
 # check king
 def check_king(position,color):
-    moves_list=[]
+    moves=[]
     if color=='white':
         enemies_list=black_locations
         friends_list=white_locations
@@ -210,7 +210,7 @@ def check_king(position,color):
         try_continue("target not in check_rook(enemies_list[[i for i, n in enumerate(pieces) if n == 'rook'][1]],color)",enemies_list,pieces,color,target)and\
         target not in checking_king(enemies_list[pieces.index('king')],color)and\
         target not in checking_pawn(color):
-            moves_list.append(target)
+            moves.append(target)
         
 
         
@@ -218,7 +218,7 @@ def check_king(position,color):
         
 
 
-    return moves_list
+    return moves
 
 #check queen valid moves
 def check_queen(position,color):
@@ -411,6 +411,11 @@ def draw_captured():
         index=piece_list.index(captured_piece)
         screen.blit(small_white_images[index],(400,5+20*i))
 
+def draw_game_over():
+    pygame.draw.rect(screen,'black', [200,200,400,70])
+    screen.blit(font.render(f'{winner} won',True,'White'),(200,200))
+    screen.blit(font.render(f'press ENTER to restart',True,'White'),(200,240))
+
 #draw king in check
 def draw_check():
 
@@ -431,6 +436,25 @@ def draw_check():
                 if counter<15:
                     pygame.draw.rect(screen,'dark blue',[black_locations[king_index][0]*50+1,black_locations[king_index][1]*50+1,50,50],5)
 
+#loose win
+def win(color):
+    king_location_black=black_locations[black_pieces.index('king')]
+    king_location_white=white_locations[white_pieces.index('king')]
+    if color=='black':
+        list=[]
+        if check_king(king_location_black,'black')==list and any(king_location_black in sublist for sublist in white_options):
+            return True
+        else:
+            return False
+    if color=='white':
+        list=[]
+        if check_king(king_location_white,'white')==list and any(king_location_white in sublist for sublist in black_options):
+            return True
+        else:
+            return False
+        
+
+
 #main loop
 black_options =check_options(black_pieces, black_locations,'black')
 white_options =check_options(white_pieces,white_locations,'white')
@@ -449,7 +473,11 @@ while run:
     draw_pieces()
     draw_captured()
     draw_check()
-
+    if win('white'if turn_step<2  else 'black')and turn_step<2:
+        winner='black'
+    elif win('white'if turn_step<2  else 'black')and turn_step>1:
+        winner='white'
+    
     if selection!=100:
         valid_moves=check_valid_moves()
         draw_valid(valid_moves)
@@ -464,17 +492,20 @@ while run:
             y_coord=event.pos[1] //50
             click_coords = (x_coord,y_coord)
             if turn_step <=1:
+                
                 if click_coords in white_locations:
                     selection = white_locations.index(click_coords)
                     if turn_step==0:
                         turn_step=1
                 if click_coords in valid_moves and selection != 100:
                     white_locations[selection]=click_coords
+                    
                     if click_coords in black_locations:
                         black_piece = black_locations.index(click_coords)
                         captured_pieces_white.append(black_pieces[black_piece])
                         black_pieces.pop(black_piece)
                         black_locations.pop(black_piece)
+                    
                     black_options =check_options(black_pieces, black_locations,'black')
                     white_options =check_options(white_pieces,white_locations,'white')
                     turn_step=2
@@ -482,12 +513,14 @@ while run:
                     valid_moves = []
 
             if turn_step >1:
+                
                 if click_coords in black_locations:
                     selection = black_locations.index(click_coords)
                     if turn_step==2:
                         turn_step=3
                 if click_coords in valid_moves and selection != 100:
                     black_locations[selection]=click_coords
+                    
                     if click_coords in white_locations:
                         white_piece = white_locations.index(click_coords)
                         captured_pieces_black.append(white_pieces[white_piece])
@@ -498,6 +531,11 @@ while run:
                     turn_step=0
                     selection=100
                     valid_moves = []
-                    
+    if winner != '':
+        game_over=True
+        draw_game_over()
+
+
+
     pygame.display.flip()
 pygame.quit()

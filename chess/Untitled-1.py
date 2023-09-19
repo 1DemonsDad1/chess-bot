@@ -1,9 +1,12 @@
 x=(1,2)
-abc=[]
+def abc():
+    abc=[]
+    return abc
 
-abc.append((x[0]+2,x[1]+1))
-abc.append((x[0],x[1]))
-abc.append((x[0]+2,x[1]+1))
 
-print(abc)
+if abc()==[]:
+    print(x)
+#idea numero uno 
+#Check for piece availble moves in func if king in check not available if not infront of king 
 
+#same as numero uno but for not being able to move if it would lead to check

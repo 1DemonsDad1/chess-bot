@@ -93,6 +93,12 @@ def try_continue(smthng,enemies_list,pieces,color,target):
         return eval(smthng)
     except:
         return True
+#try continue bc spagheti code 
+def try_notcontinue(smthng,i,white_pieces,white_locations,black_locations,black_pieces):
+    try:
+        return eval(smthng)
+    except:
+        return True
 
 # draw main game board
 def draw_board():
@@ -410,11 +416,49 @@ def draw_captured():
         captured_piece=captured_pieces_black[i]
         index=piece_list.index(captured_piece)
         screen.blit(small_white_images[index],(400,5+20*i))
-
+#game over
 def draw_game_over():
     pygame.draw.rect(screen,'black', [200,200,400,70])
     screen.blit(font.render(f'{winner} won',True,'White'),(200,200))
     screen.blit(font.render(f'press ENTER to restart',True,'White'),(200,240))
+
+#if king in check redo moves
+def jump_between_check(black,white,color):
+    list1=[]
+    if color=='black':
+        opt=black
+        
+        
+        
+        
+        for i in opt:
+            #nedela ker v 2. check optionsu indexira v 2d ne pa v notranji eni dimenziji da bi poiskalo kinga v tej 1. dimenziji in vrnilo index vecje dimenzije oz index vrstice/piecea
+            if try_notcontinue("i in check_options(white_pieces,white_locations,'white')[check_options(white_pieces,white_locations,'white').index(black_locations[black_pieces.index('king')])]",i,white_pieces,white_locations,black_locations,black_pieces):
+                list1.append(i)
+            else:
+                list1.append(())
+            print(i)
+        
+        print(list1)
+    
+        
+        
+    else:
+        opt=white
+        
+        
+        
+        
+        for i in opt:
+            if try_notcontinue("i in check_options(black_pieces,black_locations,'black')[check_options(black_pieces,black_locations,'black').index(white_locations[white_pieces.index('king')])]",i,white_pieces,white_locations,black_locations,black_pieces):
+                list1.append(i)
+            else:
+                list1.append(())
+        
+    print() 
+        
+
+    return list1
 
 #draw king in check
 def draw_check():
@@ -440,15 +484,16 @@ def draw_check():
 def win(color):
     king_location_black=black_locations[black_pieces.index('king')]
     king_location_white=white_locations[white_pieces.index('king')]
-    if color=='black':
+    list2=[]
+    if color=='white':
         list=[]
-        if check_king(king_location_black,'black')==list and any(king_location_black in sublist for sublist in white_options):
+        if check_king(king_location_black,'black')==list and list2==jump_between_check(black_options,white_options,'black') and any(king_location_black in sublist for sublist in white_options):
             return True
         else:
             return False
-    if color=='white':
+    if color=='black':
         list=[]
-        if check_king(king_location_white,'white')==list and any(king_location_white in sublist for sublist in black_options):
+        if check_king(king_location_white,'white')==list and list2==jump_between_check(black_options,white_options,'white') and any(king_location_white in sublist for sublist in black_options):
             return True
         else:
             return False
@@ -456,8 +501,9 @@ def win(color):
 
 
 #main loop
-black_options =check_options(black_pieces, black_locations,'black')
-white_options =check_options(white_pieces,white_locations,'white')
+black_options = check_options(black_pieces, black_locations,'black')  
+
+white_options = check_options(white_pieces,white_locations,'white')
 
 run =True
 while run:
@@ -473,11 +519,10 @@ while run:
     draw_pieces()
     draw_captured()
     draw_check()
-    if win('white'if turn_step<2  else 'black')and turn_step<2:
-        winner='black'
-    elif win('white'if turn_step<2  else 'black')and turn_step>1:
-        winner='white'
     
+    #king opt.
+
+
     if selection!=100:
         valid_moves=check_valid_moves()
         draw_valid(valid_moves)
@@ -494,6 +539,7 @@ while run:
             if turn_step <=1:
                 
                 if click_coords in white_locations:
+                    #dobi lokacijo kliknjenega piecea 
                     selection = white_locations.index(click_coords)
                     if turn_step==0:
                         turn_step=1
@@ -505,16 +551,32 @@ while run:
                         captured_pieces_white.append(black_pieces[black_piece])
                         black_pieces.pop(black_piece)
                         black_locations.pop(black_piece)
-                    
-                    black_options =check_options(black_pieces, black_locations,'black')
-                    white_options =check_options(white_pieces,white_locations,'white')
+
+
+                    if not(any(black_locations[black_pieces.index('king')] in sublist for sublist in check_options(white_pieces,white_locations,'white'))):
+                        black_options =check_options(black_pieces, black_locations,'black')
+                    else:
+                        black_options=jump_between_check(black_options,white_options,'black')
+
+                    if not(any(white_locations[white_pieces.index('king')] in sublist for sublist in check_options(black_pieces,black_locations,'black'))):
+                        white_options =check_options(white_pieces, white_locations,'white')
+                    else:
+                        
+                        white_options=jump_between_check(black_options,white_options,'white')
+                    #win condition
+                    if win('black'):
+                        winner='black'
+                    elif win('white'):
+                        winner='white'
+
                     turn_step=2
                     selection=100
                     valid_moves = []
 
             if turn_step >1:
-                
+
                 if click_coords in black_locations:
+                    #dobi lokacijo kliknjenega piecea 
                     selection = black_locations.index(click_coords)
                     if turn_step==2:
                         turn_step=3
@@ -526,8 +588,21 @@ while run:
                         captured_pieces_black.append(white_pieces[white_piece])
                         white_pieces.pop(white_piece)
                         white_locations.pop(white_piece)
-                    black_options =check_options(black_pieces, black_locations,'black')
-                    white_options =check_options(white_pieces,white_locations,'white')
+                    
+                    if not(any(black_locations[black_pieces.index('king')] in sublist for sublist in check_options(white_pieces,white_locations,'white'))):
+                        black_options =check_options(black_pieces, black_locations,'black')
+                    else:
+                        black_options=jump_between_check(black_options,white_options,'black')
+
+                    if not(any(white_locations[white_pieces.index('king')] in sublist for sublist in check_options(black_pieces,black_locations,'black'))):
+                        white_options =check_options(white_pieces, white_locations,'white')
+                    else:
+                        white_options=jump_between_check(black_options,white_options,'white')
+                    #win condition
+                    if win('white'):
+                        winner='black'
+                    elif win('black'):
+                        winner='white'
                     turn_step=0
                     selection=100
                     valid_moves = []

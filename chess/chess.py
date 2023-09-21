@@ -98,7 +98,7 @@ def try_notcontinue(smthng,i,white_pieces,white_locations,black_locations,black_
     try:
         return eval(smthng)
     except:
-        return True
+        return False
 
 # draw main game board
 def draw_board():
@@ -387,6 +387,37 @@ def check_pawn(position,color):
             moves_list.append((position[0]-1,position[1]-1))
     return moves_list
 
+#king defense from check and all moves
+def valid_check_moves(color):
+    options=[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+    white_opts=check_options(white_pieces,white_locations,'white')
+    black_opts=check_options(black_pieces,black_locations,'black')
+    
+    if color=='black':
+        for i in white_opts:
+            if black_locations[black_pieces.index('king')] in i:
+                options=[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+                for a in black_opts:
+                    for b in a:
+                        if b in i or b == white_locations[white_opts.index(i)]:
+                            options[black_opts.index(a)].append(b)
+                return options
+            else:
+                options=black_opts
+
+    if color=='white':
+        for i in black_opts:
+            if white_locations[white_pieces.index('king')] in i:
+                options=[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+                for a in white_opts:
+                    for b in a:
+                        if b in i or b == black_locations[black_opts.index(i)]:
+                            options[white_opts.index(a)].append(b)
+                return options
+            else:
+                options=white_opts
+    return options
+
 #valid moves for selected piece
 def check_valid_moves():
     if turn_step<2:
@@ -422,44 +453,6 @@ def draw_game_over():
     screen.blit(font.render(f'{winner} won',True,'White'),(200,200))
     screen.blit(font.render(f'press ENTER to restart',True,'White'),(200,240))
 
-#if king in check redo moves
-def jump_between_check(black,white,color):
-    list1=[]
-    if color=='black':
-        opt=black
-        
-        
-        
-        
-        for i in opt:
-            #nedela ker v 2. check optionsu indexira v 2d ne pa v notranji eni dimenziji da bi poiskalo kinga v tej 1. dimenziji in vrnilo index vecje dimenzije oz index vrstice/piecea
-            if try_notcontinue("i in check_options(white_pieces,white_locations,'white')[check_options(white_pieces,white_locations,'white').index(black_locations[black_pieces.index('king')])]",i,white_pieces,white_locations,black_locations,black_pieces):
-                list1.append(i)
-            else:
-                list1.append(())
-            print(i)
-        
-        print(list1)
-    
-        
-        
-    else:
-        opt=white
-        
-        
-        
-        
-        for i in opt:
-            if try_notcontinue("i in check_options(black_pieces,black_locations,'black')[check_options(black_pieces,black_locations,'black').index(white_locations[white_pieces.index('king')])]",i,white_pieces,white_locations,black_locations,black_pieces):
-                list1.append(i)
-            else:
-                list1.append(())
-        
-    print() 
-        
-
-    return list1
-
 #draw king in check
 def draw_check():
 
@@ -487,13 +480,13 @@ def win(color):
     list2=[]
     if color=='white':
         list=[]
-        if check_king(king_location_black,'black')==list and list2==jump_between_check(black_options,white_options,'black') and any(king_location_black in sublist for sublist in white_options):
+        if check_king(king_location_black,'black')==list and valid_check_moves('black')==[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]] and any(king_location_black in sublist for sublist in white_options):
             return True
         else:
             return False
     if color=='black':
         list=[]
-        if check_king(king_location_white,'white')==list and list2==jump_between_check(black_options,white_options,'white') and any(king_location_white in sublist for sublist in black_options):
+        if check_king(king_location_white,'white')==list and valid_check_moves('white')==[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]] and any(king_location_white in sublist for sublist in black_options):
             return True
         else:
             return False
@@ -501,9 +494,9 @@ def win(color):
 
 
 #main loop
-black_options = check_options(black_pieces, black_locations,'black')  
+black_options = valid_check_moves('black') 
 
-white_options = check_options(white_pieces,white_locations,'white')
+white_options = valid_check_moves('white')
 
 run =True
 while run:
@@ -553,16 +546,9 @@ while run:
                         black_locations.pop(black_piece)
 
 
-                    if not(any(black_locations[black_pieces.index('king')] in sublist for sublist in check_options(white_pieces,white_locations,'white'))):
-                        black_options =check_options(black_pieces, black_locations,'black')
-                    else:
-                        black_options=jump_between_check(black_options,white_options,'black')
+                    black_options = valid_check_moves('black') 
 
-                    if not(any(white_locations[white_pieces.index('king')] in sublist for sublist in check_options(black_pieces,black_locations,'black'))):
-                        white_options =check_options(white_pieces, white_locations,'white')
-                    else:
-                        
-                        white_options=jump_between_check(black_options,white_options,'white')
+                    white_options = valid_check_moves('white')
                     #win condition
                     if win('black'):
                         winner='black'
@@ -589,15 +575,9 @@ while run:
                         white_pieces.pop(white_piece)
                         white_locations.pop(white_piece)
                     
-                    if not(any(black_locations[black_pieces.index('king')] in sublist for sublist in check_options(white_pieces,white_locations,'white'))):
-                        black_options =check_options(black_pieces, black_locations,'black')
-                    else:
-                        black_options=jump_between_check(black_options,white_options,'black')
+                    black_options = valid_check_moves('black') 
 
-                    if not(any(white_locations[white_pieces.index('king')] in sublist for sublist in check_options(black_pieces,black_locations,'black'))):
-                        white_options =check_options(white_pieces, white_locations,'white')
-                    else:
-                        white_options=jump_between_check(black_options,white_options,'white')
+                    white_options = valid_check_moves('white')
                     #win condition
                     if win('white'):
                         winner='black'

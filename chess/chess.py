@@ -94,7 +94,7 @@ def try_continue(smthng,enemies_list,pieces,color,target):
     except:
         return True
 #try continue bc spagheti code 
-def try_notcontinue(smthng,i,white_pieces,white_locations,black_locations,black_pieces):
+def try_notcontinue(smthng,chain,position,enemies_list,enemies_name):
     try:
         return eval(smthng)
     except:
@@ -366,6 +366,7 @@ def checking_pawn(color):
 # pawn checking
 def check_pawn(position,color):
     moves_list=[]
+
     if color=='white':
         if (position[0], position[1]+1) not in white_locations and  (position[0],position[1]+1) not in black_locations and position[1]<7:
             moves_list.append((position[0],position[1]+1))
@@ -385,7 +386,128 @@ def check_pawn(position,color):
             moves_list.append((position[0]+1,position[1]-1))
         if (position[0]-1,position[1]-1)in white_locations:
             moves_list.append((position[0]-1,position[1]-1))
+
     return moves_list
+
+#vector line(returns locations in between)
+def line_options(enemy_location,king_location):
+    moves_list=[enemy_location]
+    x=king_location[0]-enemy_location[0]
+    y=king_location[1]-enemy_location[1]
+    if x>0:
+        x=1
+    elif x<0:
+        x=-1
+    if y>0:
+        y=1
+    elif y<0:
+        y=-1
+    position=enemy_location
+    for i in range(4):
+        path = True
+        chain=1
+        while path:
+            if (position[0]+(chain* x), position[1]+ (chain *y))!=king_location:
+                moves_list.append((position[0] + (chain * x), position[1] + (chain * y)))
+                chain += 1
+            else:
+                path = False
+    
+
+    return moves_list
+
+#check if pieces that are blocking king from check cant move
+def checking_betrayal(position,color):
+    moves_list=[]
+    if color=='white':
+        
+        friends_list=white_locations
+    else:
+        friends_list=black_locations
+        
+    
+
+    # 8x kockice king
+    targets=[(1,0),(1,1),(1,-1),(-1,0),(-1,1),(-1,-1),(0,1),(0,-1)]
+
+    for i in range(8):
+        target=(position[0]+targets[i][0],position[1]+targets[i][1])
+
+        if  target in friends_list and 0<= target[0]<=7 and 0 <= target[1]<=7 :
+            moves_list.append(target)
+
+    return moves_list
+
+#geting all lines from king where pieces could be attacking (pins)
+def get_king_rays(king_location,color):
+    moves_list = []
+    if color=='black':
+        enemies_list=white_locations
+        enemies_name=black_pieces
+    else:
+        enemies_name=white_pieces
+        enemies_list=black_locations
+    position=king_location
+    
+    for i in range(4): # gordesno gorlevo doldesno dollevo
+        path = True
+        chain=0
+        if i ==0:
+            x=1
+            y=-1
+        elif i==1:
+            x=-1
+            y=-1
+        elif i==2:
+            x= 1
+            y=1
+        else:
+            x=-1
+            y=1
+        while path:
+            chain += 1
+            if (enemies_name[enemies_list.index((position[0] + (chain * x), position[1] + (chain * y)))]=="queen" or enemies_name[enemies_list.index((position[0] + (chain * x), position[1] + (chain * y)))]=="bishop") if (position[0] + (chain * x), position[1] + (chain * y))in enemies_list else False:
+                moves_list.append((position[0] + (chain * x), position[1] + (chain * y)))
+                path = False
+                
+                
+            if position[0] + (chain * x)>7 and position[1] + (chain * y)>7 or position[0] + (chain * x)<0 and position[1] + (chain * y)<0 or position[0] + (chain * x)<0 and position[1] + (chain * y)>7 or position[0] + (chain * x)>7 and position[1] + (chain * y)<0:
+                path= False
+                
+            
+            
+            
+    
+    for i in range(4): #gor dol levo desno
+        path1=True
+        chain1=0
+        if i ==0:
+            x=0
+            y=1
+        elif i==1:
+            x=0
+            y=-1
+        elif i==2:
+            x= 1
+            y=0
+        else:
+            x=-1
+            y=0
+        while path1:
+            chain1 += 1
+            if (enemies_name[enemies_list.index((position[0] + (chain1 * x), position[1] + (chain1 * y)))]=="queen" or enemies_name[enemies_list.index((position[0] + (chain1 * x), position[1] + (chain1 * y)))]=="rook")if (position[0] + (chain1 * x), position[1] + (chain1 * y))in enemies_list else False:
+                moves_list.append((position[0] + (chain1 * x), position[1] + (chain1 * y)))
+                path1 = False
+                
+                
+            
+            if (position[1] + (chain1 * y))>7 or (position[1] + (chain1 * y))<0 or (position[1] + (chain1 * x))>7 or (position[1] + (chain1 * x))<0:
+                path1= False
+                
+            
+
+    return moves_list
+
 
 #king defense from check and all moves
 def valid_check_moves(color):
@@ -395,28 +517,72 @@ def valid_check_moves(color):
     
     if color=='black':
         for i in white_opts:
+            #king in check
             if black_locations[black_pieces.index('king')] in i:
                 options=[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
                 for a in black_opts:
                     for b in a:
-                        if b in i or b == white_locations[white_opts.index(i)]:
+                        #if b in coords between attacker and king
+                        if b in line_options(white_locations[white_opts.index(i)],black_locations[black_pieces.index('king')]):
                             options[black_opts.index(a)].append(b)
+                        #king moves
+                        if b in check_king(black_locations[black_pieces.index('king')],'black'):
+                            options[black_opts.index(black_opts[black_pieces.index('king')])].append(b)
+                
                 return options
             else:
+                king_rays=get_king_rays(black_locations[black_pieces.index('king')],'black')
                 options=black_opts
+                print(king_rays)
+                for d in checking_betrayal(black_locations[black_pieces.index('king')],'black'):
+                    for j in range(len(king_rays)):
+                        print('hapens')
+                        if d in line_options(king_rays[j],black_locations[black_pieces.index('king')]):
+                            options[black_locations.index(d)]=[]
+                            print("happens3")
+                            for k in line_options(king_rays[j],black_locations[black_pieces.index('king')]):
+                                print("happens4")
+                                print(check_options(black_pieces,black_locations,'black')[black_locations.index(d)])
+                                if k in check_options(black_pieces,black_locations,'black')[black_locations.index(d)]:
+                                    print("happens2")
+                                    
+                                    options[black_locations.index(d)].append(k)
+
+                return options
 
     if color=='white':
         for i in black_opts:
+            #king in check
             if white_locations[white_pieces.index('king')] in i:
                 options=[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
                 for a in white_opts:
                     for b in a:
-                        if b in i or b == black_locations[black_opts.index(i)]:
+                        #if b in coords between attacker and king
+                        if b in line_options(black_locations[black_opts.index(i)],white_locations[white_pieces.index('king')]):
                             options[white_opts.index(a)].append(b)
+                        #king moves
+                        if b in check_king(white_locations[white_pieces.index('king')],'white'):
+                            options[white_opts.index(white_opts[white_pieces.index('king')])].append(b)
                 return options
             else:
+                king_rays=get_king_rays(white_locations[white_pieces.index('king')],'white')
                 options=white_opts
-    return options
+                print(king_rays)
+                for d in checking_betrayal(white_locations[white_pieces.index('king')],'white'):
+                    print('1 before hapens')
+                    for j in range(len(king_rays)):
+                        print('hapens')
+                        if d in line_options(king_rays[j],white_locations[white_pieces.index('king')]):
+                            options[white_locations.index(d)]=[]
+                            print("happens3")
+                            for k in line_options(king_rays[j],white_locations[white_pieces.index('king')]):
+                                print("happens4")
+                                if k in check_options(white_pieces,white_locations,'black')[white_locations.index(d)]:
+                                    print("happens2")
+                                    options[white_locations.index(d)].append(k)
+
+                return options
+    
 
 #valid moves for selected piece
 def check_valid_moves():
@@ -447,6 +613,7 @@ def draw_captured():
         captured_piece=captured_pieces_black[i]
         index=piece_list.index(captured_piece)
         screen.blit(small_white_images[index],(400,5+20*i))
+
 #game over
 def draw_game_over():
     pygame.draw.rect(screen,'black', [200,200,400,70])

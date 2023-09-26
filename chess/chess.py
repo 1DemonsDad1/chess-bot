@@ -153,29 +153,32 @@ def check_options(pieces,locations,turn):
 
     return all_moves_list
 
+#piece protection
+def piece_antivirus():
+    pass
+
 #check options without king options
 def one_list_all_moves(pieces,locations,turn):
     moves_list=[]
     all_moves_list1=[]
     all_moves_list=[]
     
-    print(pieces,"piecessss")
-    print(locations,"locations")
+    
     for i in range((len(pieces))):
         location = locations[i]
         piece=pieces[i]
-        print(piece,"piece")
+        
         if piece=='rook':
-            print('happens1')
+        
             moves_list=check_rook(location,turn)
         elif piece=='knight':
-            print('happens2')
+        
             moves_list=check_knight(location,turn)
         elif piece=='bishop':
-            print('happens3')
+        
             moves_list=check_bishop(location,turn)
         elif piece=='queen':
-            print('happens4')
+            
             moves_list=check_queen(location,turn)
         
         all_moves_list1.append(moves_list)
@@ -185,7 +188,7 @@ def one_list_all_moves(pieces,locations,turn):
             all_moves_list.append(d)
 
 
-    print('all moves list', all_moves_list)
+    
     return all_moves_list
 
 #check king again for check king 
@@ -234,7 +237,7 @@ def check_king(position,color):
         target not in checking_king(enemies_list[pieces.index('king')],color)and\
         target not in checking_pawn(color):
             moves.append(target)
-    print("moves",moves)
+    
     return moves
 
 #check queen valid moves
@@ -484,8 +487,8 @@ def checking_betrayal(position1,color):
             y=0
         while path1:
             chain1 += 1
-            if (position[0] + (chain * x), position[1] + (chain * y))in friends_list:
-                moves_list.append((position[0] + (chain * x), position[1] + (chain * y)))
+            if (position[0] + (chain1 * x), position[1] + (chain1 * y))in friends_list:
+                moves_list.append((position[0] + (chain1 * x), position[1] + (chain1 * y)))
                 
             
             if (position[1] + (chain1 * y))>7 or (position[1] + (chain1 * y))<0 or (position[1] + (chain1 * x))>7 or (position[1] + (chain1 * x))<0:
@@ -500,9 +503,9 @@ def get_king_rays(king_location,color):
     moves_list = []
     if color=='black':
         enemies_list=white_locations
-        enemies_name=black_pieces
-    else:
         enemies_name=white_pieces
+    else:
+        enemies_name=black_pieces
         enemies_list=black_locations
     position=king_location
     
@@ -586,11 +589,13 @@ def valid_check_moves(color):
                         if b in check_king(black_locations[black_pieces.index('king')],'black'):
                             options[black_opts.index(black_opts[black_pieces.index('king')])].append(b)
                 return options
-        else:
+        if not any(black_locations[black_pieces.index('king')]in sublist for sublist in white_opts):
             count=0
             king_rays=get_king_rays(black_locations[black_pieces.index('king')],'black')
+            
             options=black_opts
             betrayal=checking_betrayal(black_locations[black_pieces.index('king')],'black')
+            
             for d in betrayal:
                 for j in range(len(king_rays)):
                     if d in line_options(king_rays[j],black_locations[black_pieces.index('king')]):
@@ -598,6 +603,7 @@ def valid_check_moves(color):
                         for e in line_options(king_rays[j],black_locations[black_pieces.index('king')]):
                             if e in black_locations:
                                 count+=1
+                        
                         if count==4:
                             options[black_locations.index(d)]=[]
                             for k in line_options(king_rays[j],black_locations[black_pieces.index('king')]):
@@ -619,7 +625,7 @@ def valid_check_moves(color):
                         if b in check_king(white_locations[white_pieces.index('king')],'white'):
                             options[white_opts.index(white_opts[white_pieces.index('king')])].append(b)
                 return options
-        else:
+        if not any(white_locations[white_pieces.index('king')]in sublist for sublist in black_opts):
             king_rays=get_king_rays(white_locations[white_pieces.index('king')],'white')
             options=white_opts
             betrayal=checking_betrayal(white_locations[white_pieces.index('king')],'white')
@@ -630,6 +636,7 @@ def valid_check_moves(color):
                         for e in line_options(king_rays[j],white_locations[white_pieces.index('king')]):
                             if e in white_locations:
                                 count+=1
+                        
                         if count==4:
                             options[white_locations.index(d)]=[]
                             for k in line_options(king_rays[j],white_locations[white_pieces.index('king')]):

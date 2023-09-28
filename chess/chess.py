@@ -153,27 +153,22 @@ def check_options(pieces,locations,turn):
 
     return all_moves_list
 
-#piece protection
-def piece_antivirus(pieces,names,color):
-    moves_list=[]
-    if color=='white':
-        enemies_list=black_locations
-        friends_list=white_locations
-    else:
-        friends_list=black_locations
-        enemies_list=white_locations
-    position = names[pieces.index('king')]
-
-    # 8x kockice king
-    targets=[(1,0),(1,1),(1,-1),(-1,0),(-1,1),(-1,-1),(0,1),(0,-1)]
-
-    for i in range(8):
-        target=(position[0]+targets[i][0],position[1]+targets[i][1])
-
-        if  target not in friends_list and 0<= target[0]<=7 and 0 <= target[1]<=7 and target not in #check king rays in es work:
-            moves_list.append(target)
-
-    return moves_list
+#piece protection (returns pieces around king that are protected)
+def piece_antivirus(color,target):
+    move=[]
+    ray2=[]
+    rays=get_king_rays(target,color)
+    
+    for i in rays:
+        ray2=get_king_rays(i,color)#myb line options
+        if ray2 !=[] :
+            move.append(ray2)
+            
+    print(ray2,"ray2")
+    print(rays,"rays")
+    print(color,"color")
+    print(move,"move")
+    return move
 
 #check options without king options
 def one_list_all_moves(pieces,locations,turn):
@@ -252,7 +247,7 @@ def check_king(position,color):
     targets=[(1,0),(1,1),(1,-1),(-1,0),(-1,1),(-1,-1),(0,1),(0,-1)]
     for i in range(8):
         target=(position[0]+targets[i][0],position[1]+targets[i][1])
-        if  target not in friends_list and 0<= target[0]<=7 and 0 <= target[1]<=7 and target not in piece_antivirus(enemies_names,enemies_list,enemies_color) and target not in one_list_all_moves(enemies_names,enemies_list,enemies_color) and\
+        if  target not in friends_list and 0<= target[0]<=7 and 0 <= target[1]<=7 and target not in piece_antivirus(color,target) and target not in one_list_all_moves(enemies_names,enemies_list,enemies_color) and\
         target not in checking_king(enemies_list[pieces.index('king')],color)and\
         target not in checking_pawn(color):
             moves.append(target)
@@ -586,7 +581,6 @@ def get_king_rays(king_location,color):
             
 
     return moves_list
-
 
 #king defense from check and all moves
 def valid_check_moves(color):

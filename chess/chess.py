@@ -153,23 +153,6 @@ def check_options(pieces,locations,turn):
 
     return all_moves_list
 
-#piece protection (returns pieces around king that are protected)
-def piece_antivirus(color,target):
-    move=[]
-    ray2=[]
-    rays=get_king_rays(target,color)
-    
-    for i in rays:
-        ray2=get_king_rays(i,color)#myb line options
-        if ray2 !=[] :
-            move.append(ray2)
-            
-    print(ray2,"ray2")
-    print(rays,"rays")
-    print(color,"color")
-    print(move,"move")
-    return move
-
 #check options without king options
 def one_list_all_moves(pieces,locations,turn):
     moves_list=[]
@@ -227,6 +210,69 @@ def checking_king(position,color):
 
     return moves_list
 
+#checking knight for antivirus
+def checking_knight(color):
+    moves_list=[]
+    if color=='white':
+        enemies_list=black_locations
+        enemies_name=black_pieces
+    else:
+        enemies_name=white_pieces
+        enemies_list=white_locations
+    
+    horse_locations=[]
+
+    for i in enemies_list:
+        if enemies_name[enemies_list.index(i)]=='knight':
+            horse_locations.append(i)
+
+
+    # 8x kockice
+    targets=[(1,2),(1,-2),(2,1),(2,-1),(-1,2),(-1,-2),(-2,1),(-2,-1)]
+    for j in range(len(horse_locations)):
+        position=horse_locations[j]
+        for i in range(8):
+            target=(position[0]+targets[i][0],position[1]+targets[i][1])
+            if 0<= target[0]<=7 and 0 <= target[1]<=7:
+                moves_list.append(target)
+    print(color,'color in knight')
+    print(moves_list,'knight moves')
+    return moves_list
+
+#piece protection (returns pieces around king that are protected)
+def piece_antivirus(color,target): #friendly color and kings target
+    move=[]
+    ray2=[]
+    rays=get_king_rays(target,color)
+    
+
+    black_locations1=[]
+    white_locations1=[]
+
+    for i in black_locations:
+        if i != black_locations[black_pieces.index('king')]:
+            black_locations1.append(i)
+
+    for i in white_locations:
+        if i != white_locations[white_pieces.index('king')]:
+            white_locations1.append(i)
+
+    for i in rays:
+        ray2=line_options(i,target)
+        once=len(ray2)-1
+        for j in ray2:
+            
+            if j not in black_locations1 and j not in white_locations1:
+                once-=1
+            
+            if j not in black_locations1 and j not in white_locations1 and once==0:
+                move.append(target)
+                
+
+    
+    return move
+
+
 # check king
 def check_king(position,color):
     moves=[]
@@ -247,7 +293,7 @@ def check_king(position,color):
     targets=[(1,0),(1,1),(1,-1),(-1,0),(-1,1),(-1,-1),(0,1),(0,-1)]
     for i in range(8):
         target=(position[0]+targets[i][0],position[1]+targets[i][1])
-        if  target not in friends_list and 0<= target[0]<=7 and 0 <= target[1]<=7 and target not in piece_antivirus(color,target) and target not in one_list_all_moves(enemies_names,enemies_list,enemies_color) and\
+        if  target not in friends_list and 0<= target[0]<=7 and 0 <= target[1]<=7 and target not in checking_knight(color) and target not in piece_antivirus(color,target) and target not in one_list_all_moves(enemies_names,enemies_list,enemies_color) and\
         target not in checking_king(enemies_list[pieces.index('king')],color)and\
         target not in checking_pawn(color):
             moves.append(target)

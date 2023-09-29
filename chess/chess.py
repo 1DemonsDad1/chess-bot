@@ -293,7 +293,9 @@ def check_king(position,color):
     targets=[(1,0),(1,1),(1,-1),(-1,0),(-1,1),(-1,-1),(0,1),(0,-1)]
     for i in range(8):
         target=(position[0]+targets[i][0],position[1]+targets[i][1])
-        if  target not in friends_list and 0<= target[0]<=7 and 0 <= target[1]<=7 and target not in checking_knight(color) and target not in piece_antivirus(color,target) and target not in one_list_all_moves(enemies_names,enemies_list,enemies_color) and\
+        if  target not in friends_list and 0<= target[0]<=7 and 0 <= target[1]<=7 and\
+        target not in checking_knight(color) and target not in piece_antivirus(color,target) and\
+        target not in one_list_all_moves(enemies_names,enemies_list,enemies_color) and\
         target not in checking_king(enemies_list[pieces.index('king')],color)and\
         target not in checking_pawn(color):
             moves.append(target)
@@ -839,7 +841,7 @@ while run:
                     #win condition
                     if win('black'):
                         winner='black'
-                    elif win('white'):
+                    if win('white'):
                         winner='white'
 
                     turn_step=2
@@ -867,9 +869,9 @@ while run:
                     white_options = valid_check_moves('white')
                     #win condition
                     if win('white'):
-                        winner='black'
-                    elif win('black'):
                         winner='white'
+                    if win('black'):
+                        winner='black'
                     turn_step=0
                     selection=100
                     valid_moves = []

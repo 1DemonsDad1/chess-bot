@@ -169,7 +169,7 @@ def piece_antivirus(color,target): #friendly color and kings target
             white_locations1.append(i)
 
     for i in rays:
-        ray2=line_options(i,target)
+        ray2=line_options(i,target,color)
         once=len(ray2)-1
         for j in ray2:
             
@@ -404,8 +404,18 @@ def check_ep(old_coords, new_coords):
     return ep_coords
 
 #vector line(returns locations in between)
-def line_options(enemy_location,king_location):
+def line_options(enemy_location,king_location,color):
     moves_list=[enemy_location]
+    if color=='white':
+        color='black'
+        friends_locations=black_locations
+        friends_names=black_pieces
+    else:
+        color='white'
+        friends_locations=white_locations
+        friends_names=white_pieces
+
+    
     x=king_location[0]-enemy_location[0]
     y=king_location[1]-enemy_location[1]
     if x>0:
@@ -421,12 +431,12 @@ def line_options(enemy_location,king_location):
         path = True
         chain=1
         while path:
-            if (position[0]+(chain* x), position[1]+ (chain *y))!=king_location:
+            if (position[0]+(chain* x), position[1]+ (chain *y))!=king_location and position[0] + (chain * x)>7 and position[1] + (chain * y)>7 or position[0] + (chain * x)<0 and position[1] + (chain * y)<0 or position[0] + (chain * x)<0 and position[1] + (chain * y)>7 or position[0] + (chain * x)>7 and position[1] + (chain * y)<0:
                 moves_list.append((position[0] + (chain * x), position[1] + (chain * y)))
                 chain += 1
             else:
                 path = False
-    
+
 
     return moves_list
 
@@ -573,7 +583,6 @@ def valid_check_moves(color):
     options=[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
     white_opts=check_options(white_pieces,white_locations,'white')
     black_opts=check_options(black_pieces,black_locations,'black')
-    
     if color=='black':
         for i in white_opts:
             #king in check
@@ -582,12 +591,23 @@ def valid_check_moves(color):
                 for a in black_opts:
                     for b in a:
                         #if b in coords between attacker and king
-                        if b in line_options(white_locations[white_opts.index(i)],black_locations[black_pieces.index('king')]):
+                        if b in line_options(white_locations[white_opts.index(i)],black_locations[black_pieces.index('king')],color):
                             options[black_opts.index(a)].append(b)
                         #king moves
                         if b in check_king(black_locations[black_pieces.index('king')],'black'):
                             options[black_opts.index(black_opts[black_pieces.index('king')])].append(b)
-                return options
+                        
+                        print(options,'options in loop')
+                print(options, 'options out of loop')
+                print()
+                if black_pieces[black_locations.index(black_locations[white_opts.index(i)])]=='knight':
+                    king_opts=check_king(black_locations[black_pieces.index('king')],'black')
+                    print(king_opts,'king opts')
+                    for w in king_opts[0]:
+                        options[black_opts.index(black_opts[black_pieces.index('king')])].append(w)
+                    return options
+                else:
+                    return options
         if not any(black_locations[black_pieces.index('king')]in sublist for sublist in white_opts):
             count=0
             king_rays=get_king_rays(black_locations[black_pieces.index('king')],'black')#pieces that could pin king
@@ -597,16 +617,15 @@ def valid_check_moves(color):
             
             for d in betrayal: # pined to king
                 for j in range(len(king_rays)):#could pin
-                    if d in line_options(king_rays[j],black_locations[black_pieces.index('king')]):
+                    if d in line_options(king_rays[j],black_locations[black_pieces.index('king')],color):
                         count=0
-                        for e in line_options(king_rays[j],black_locations[black_pieces.index('king')]):
+                        for e in line_options(king_rays[j],black_locations[black_pieces.index('king')],color):
                             
                             if e in black_locations or e in white_locations:
                                 count+=1
-                        print(count,'count')
                         if count==5:
                             options[black_locations.index(d)]=[]
-                            for k in line_options(king_rays[j],black_locations[black_pieces.index('king')]):
+                            for k in line_options(king_rays[j],black_locations[black_pieces.index('king')],color):
                                 if k in check_options(black_pieces,black_locations,'black')[black_locations.index(d)]:
                                     options[black_locations.index(d)].append(k)
             return options
@@ -619,27 +638,37 @@ def valid_check_moves(color):
                 for a in white_opts:
                     for b in a:
                         #if b in coords between attacker and king
-                        if b in line_options(black_locations[black_opts.index(i)],white_locations[white_pieces.index('king')]):
+                        if b in line_options(black_locations[black_opts.index(i)],white_locations[white_pieces.index('king')],color):
                             options[white_opts.index(a)].append(b)
                         #king moves
                         if b in check_king(white_locations[white_pieces.index('king')],'white'):
                             options[white_opts.index(white_opts[white_pieces.index('king')])].append(b)
-                return options
+                            print(options,'options in loop')
+                print(options, 'options out of loop')
+                print()
+                if white_pieces[white_locations.index(white_locations[black_opts.index(i)])]=='knight':
+                    king_opts=check_king(white_locations[white_pieces.index('king')],'white')
+                    print(king_opts,'king opts')
+                    for w in king_opts[0]:
+                        options[white_opts.index(white_opts[white_pieces.index('king')])].append(w)
+                    return options
+                else:
+                    return options
+                
         if not any(white_locations[white_pieces.index('king')]in sublist for sublist in black_opts):
             king_rays=get_king_rays(white_locations[white_pieces.index('king')],'white')
             options=white_opts
             betrayal=checking_betrayal(white_locations[white_pieces.index('king')],'white')
             for d in betrayal:
                 for j in range(len(king_rays)):
-                    if d in line_options(king_rays[j],white_locations[white_pieces.index('king')]):
+                    if d in line_options(king_rays[j],white_locations[white_pieces.index('king')],color):
                         count=0
-                        for e in line_options(king_rays[j],white_locations[white_pieces.index('king')]):
+                        for e in line_options(king_rays[j],white_locations[white_pieces.index('king')],color):
                             if e in white_locations or e in black_locations:
                                 count+=1
-                        print(count,'count')
                         if count==5:
                             options[white_locations.index(d)]=[]
-                            for k in line_options(king_rays[j],white_locations[white_pieces.index('king')]):
+                            for k in line_options(king_rays[j],white_locations[white_pieces.index('king')],color):
                                 if k in check_options(white_pieces,white_locations,'black')[white_locations.index(d)]:
                                     options[white_locations.index(d)].append(k)
             return options

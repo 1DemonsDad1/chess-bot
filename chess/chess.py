@@ -1,5 +1,6 @@
 import pygame
 from konstante import *
+import random
 pygame.init()
 # draw main game board
 def draw_board():
@@ -296,6 +297,7 @@ def checking_pawn(color):
                 j+=1
     return pawn_list 
 
+#gets rays in y for ep
 def get_king_rays_pawn(king_location):
     position=king_location
     targets=[]
@@ -304,7 +306,7 @@ def get_king_rays_pawn(king_location):
     return targets
 
 #check enpassant pawn bug
-def ep_pawn(pawnpos,white_ep,black_ep):
+def ep_pawn(white_ep,black_ep):
     if turn_step<2:#whites move
         kingxposline=get_king_rays_pawn(white_locations[white_pieces.index('king')])
         enemies_list=black_locations
@@ -321,33 +323,32 @@ def ep_pawn(pawnpos,white_ep,black_ep):
         friends_names=black_pieces
         ep=black_ep
         king=black_locations[black_pieces.index('king')]
-    
-    
     for i in kingxposline:
         if i in friends_list and friends_names[friends_list.index(i)]=='pawn' and ep!=(100,100):
             count=0
             for j in kingxposline:
-                if j == enemies_names[enemies_list.index(i)]=='rook' or enemies_names[enemies_list.index(i)]=='queen':#fix for index try not to do eval bc is gae  
+                if j == enemies_list[enemies_names.index('rook')] or j==enemies_list[enemies_names.index('queen')]:#fix for index try not to do eval bc is gae  
                     if i in line_options(j,king):
+                        #from king pos
                         x=king[0]-j[0]
                         if x>0:
                             x=1
                         elif x<0:
                             x=-1
-                        for i in range(8):
-                            target=((enemies_list[enemies_list.index(i)]+x*i),king[1])
-                            if target ==enemies_list[enemies_names.index('pawn')]and target ==enemies_list[enemies_names.index('bishop')]and target ==enemies_list[enemies_names.index('knight')] and target ==enemies_list[enemies_names.index('king')]:
-                                count+=1
-                            if target ==friends_list[friends_names.index('pawn')]and target ==friends_list[friends_names.index('bishop')]and target ==friends_list[friends_names.index('knight')]and target ==friends_list[friends_names.index('queen')]and target ==friends_list[friends_names.index('rook')]:
-                                count+=1
-                            if target ==enemies_list[enemies_names.index('queen')] or target ==enemies_list[enemies_names.index('rook')]:
-                                count=0
-                            if target == friends_list[friends_names.index('king')]:
-                                break
-                        print(count,'count')
-                if count<3:
-                    return False
-
+                        for d in range(8):
+                            target=((enemies_list[enemies_list.index(j)][0]+x*d),king[1])
+                            if target in enemies_list:
+                                if enemies_names[enemies_list.index(target)]=='queen' or enemies_names[enemies_list.index(target)]=='rook':
+                                    count=0
+                                elif enemies_names[enemies_list.index(target)]=='pawn' or enemies_names[enemies_list.index(target)]=='bishop' or enemies_names[enemies_list.index(target)]=='knight' or enemies_names[enemies_list.index(target)]=='king':
+                                    count+=1
+                            if target in friends_list:
+                                if friends_names[friends_list.index(target)]=='pawn' or friends_names[friends_list.index(target)]=='bishop' or friends_names[friends_list.index(target)]=='knight':
+                                    count+=1
+                                if friends_names[friends_list.index(target)]=='king':
+                                    break
+                    if count<3:
+                        return False
     return True
 
 # pawn checking
@@ -363,7 +364,7 @@ def check_pawn(position,color):
         if (position[0]-1,position[1]+1)in black_locations:
             moves_list.append((position[0]-1,position[1]+1))
         #en passant check
-        if ep_pawn(position,black_ep,white_ep):
+        if ep_pawn(black_ep,white_ep):
             if (position[0]+1,position[1]+1)== black_ep:
                 moves_list.append((position[0]+1,position[1]+1))
             if (position[0]-1,position[1]+1)== black_ep:
@@ -378,7 +379,7 @@ def check_pawn(position,color):
         if (position[0]-1,position[1]-1)in white_locations:
             moves_list.append((position[0]-1,position[1]-1))
         #en passant check
-        if ep_pawn(position,black_ep,white_ep):
+        if ep_pawn(black_ep,white_ep):
             if (position[0]+1,position[1]-1)== white_ep:
                 moves_list.append((position[0]+1,position[1]-1))
             if (position[0]-1,position[1]-1)== white_ep:
@@ -418,30 +419,31 @@ def line_options(enemy_location,king_location):
     position=enemy_location
     if enemy_location in white_locations:
         if white_pieces[white_locations.index(enemy_location)]=='knight':
-            moves_list.append(enemy_location)
-        else:
-            for i in range(4):
-                        path = True
-                        chain=1
-                        while path:
-                            if (position[0]+(chain* x), position[1]+ (chain *y))!=king_location:
-                                moves_list.append((position[0] + (chain * x), position[1] + (chain * y)))
-                                chain += 1
-                            else:
-                                path = False
+            return moves_list
+            
+        for i in range(4):
+            path = True
+            chain=1
+            while path:
+                if (position[0]+(chain* x), position[1]+ (chain *y))!=king_location:
+                    moves_list.append((position[0] + (chain * x), position[1] + (chain * y)))
+                    chain += 1
+                else:
+                    path = False
+        
     elif enemy_location in black_locations:
         if black_pieces[black_locations.index(enemy_location)]=='knight':
-            moves_list.append(enemy_location)
-        else:
-            for i in range(4):
-                path = True
-                chain=1
-                while path:
-                    if (position[0]+(chain* x), position[1]+ (chain *y))!=king_location:
-                        moves_list.append((position[0] + (chain * x), position[1] + (chain * y)))
-                        chain += 1
-                    else:
-                        path = False
+            return moves_list
+        for i in range(4):
+            path = True
+            chain=1
+            while path:
+                if (position[0]+(chain* x), position[1]+ (chain *y))!=king_location:
+                    moves_list.append((position[0] + (chain * x), position[1] + (chain * y)))
+                    chain += 1
+                else:
+                    path = False
+
     return moves_list
 
 #check if pieces that are blocking king from check cant move
@@ -559,19 +561,24 @@ def valid_check_moves(color):
     options=[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
     white_opts=check_options(white_pieces,white_locations,'white')
     black_opts=check_options(black_pieces,black_locations,'black')
+    q=-1
     if color=='black':
         for i in white_opts:
             #king in check
             if black_locations[black_pieces.index('king')] in i:
                 options=[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+                print(black_opts,'black_opts')
                 for a in black_opts:
+                    q+=1
                     for b in a:
                         #if b in coords between attacker and king
                         if b in line_options(white_locations[white_opts.index(i)],black_locations[black_pieces.index('king')]):
-                            options[black_opts.index(a)].append(b)
+                            options[q].append(b)# this is the problem 100%
+                        
                         #king moves
                         if b in check_king(black_locations[black_pieces.index('king')],'black')[0]:
                             options[black_opts.index(black_opts[black_pieces.index('king')])].append(b)
+
                 return options      
         if not any(black_locations[black_pieces.index('king')]in sublist for sublist in white_opts):
             count=0
@@ -591,22 +598,26 @@ def valid_check_moves(color):
                                 if k in check_options(black_pieces,black_locations,'black')[black_locations.index(d)]:
                                     options[black_locations.index(d)].append(k)
             return options
+    
     if color=='white':
         for i in black_opts:
             #king in check
             if white_locations[white_pieces.index('king')] in i:
                 options=[[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+                print(white_opts,'white_opts')
                 for a in white_opts:
+                    q+=1
+
                     for b in a:
                         #if b in coords between attacker and king
                         if b in line_options(black_locations[black_opts.index(i)],white_locations[white_pieces.index('king')]):
-                            options[white_opts.index(a)].append(b)
+                            options[q].append(b)# this is the problem 100%
+
                         
                         #king moves
                         if b in check_king(white_locations[white_pieces.index('king')],'white')[0]:
                             options[white_opts.index(white_opts[white_pieces.index('king')])].append(b)
-                print(options, 'options out of loop')
-                print()
+
                 return options
         if not any(white_locations[white_pieces.index('king')]in sublist for sublist in black_opts):
             count=0

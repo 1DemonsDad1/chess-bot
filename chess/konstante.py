@@ -93,3 +93,6 @@ castling_moves=[]
 called=0
 white=np.array(white_pieces)
 black=np.array(black_pieces)
+all_options_selected=False
+alpha=float('-inf')
+beta=float('inf')

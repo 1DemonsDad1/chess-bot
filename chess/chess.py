@@ -824,9 +824,27 @@ def draw_castling(moves):
     for i in range(len(moves)):
         pygame.draw.circle(screen,'purple',(moves[i][0][0]*50+25,moves[i][0][1]*50+25),5)
 
+#main menu
+def draw_main_menu():
+    #big play chess
+    screen.blit(big_font.render('Play Chess',True,(119,153,84)),(100,125))
+
+    #2players button
+    pygame.draw.rect(screen,(119,153,84),[150,250,100,50],40,7)
+    screen.blit(font.render('2 players',True,(233,237,204)),(155,265))
+
+    # vs ai as black
+    pygame.draw.rect(screen,(119,153,84),[150,350,100,50],40,7)
+    screen.blit(font.render('Against',True,(233,237,204)),(160,355))
+    screen.blit(font.render('bots',True,(233,237,204)),(175,375))
+    screen.blit(font.render('*',True,(233,237,204)),(155,400))
+    screen.blit(small_font.render('select options',True,(233,237,204)),(165,400))
+    # add option buttons
 
 #material advantage
 def material(turn):
+    white=np.array(white_pieces)
+    black=np.array(black_pieces)
     material=0
     for i in black if turn else white:
         material+= 9 if i=='queen' else 5 if i=='rook' else 3 if i=='bishop' else 3 if i=='knight' else 1
@@ -839,10 +857,90 @@ def evaluate():
     evaluation=whiteeval-blackeval
     return evaluation
 
+#algorithm for minmax 
+def minmax(black_options,white_options,alpha,beta,depth,max_player):
+    if depth==0 or win('black'if max_player==False else 'white'):
+        return evaluate(),j
+    
+    if max_player:
+        maxEval= float('-inf')
+        for i in white_options:
+            for j in i:#loop through all options of pieces
+                prev_location=white_locations[white_options.index(i)]#get prev location for add back (simulation)
+                white_locations[white_options.index(i)]=j #location of max players piece at index of piece = its posible location 
+                wasin=False
+                if j in black_locations:#remove pieces if piece location in enemies location
+                    black_piece = black_locations.index(j)
+                    prev_bindex=black_locations.index(j)
+                    prev_blocation=black_locations[black_piece]
+                    black_locations.pop(black_piece)
+                    wasin=True
+
+                if j in black_locations:#remove pieces if piece location in enemies location
+                    black_piece = black_locations.index(j)
+                    black_locations.pop(black_piece)
+                
+                black_options = valid_check_moves('black') 
+                white_options = valid_check_moves('white')
+                eval=minmax(black_options,white_options,alpha,beta,depth-1,False)[0] #recursion
+
+                if wasin==True: #returns back the taken piece
+                    black_locations.insert(prev_bindex,prev_blocation)
+
+                white_locations[white_options.index(i)]=prev_location
+
+                maxEval= max(maxEval,eval)
+                alpha= max(alpha,eval)
+                if beta<= alpha:
+                    break
+            if beta<=alpha:
+                break
+        return maxEval
+
+
+    else:
+        minEval= float('inf')
+        for i in black_options:
+            for j in i:#loop through all options of pieces
+                prev_location=black_locations[black_options.index(i)]#get prev location for add back (simulation)
+                black_locations[black_options.index(i)]=j#location of max players piece at index of piece = its posible location 
+                wasin=False
+
+                if j in white_locations:#remove pieces if piece location in enemies location
+                    white_piece = white_locations.index(j)
+                    prev_windex=white_locations.index(j)
+                    prev_wlocation=white_locations[white_piece]
+                    white_locations.pop(white_piece)
+                    wasin=True
+
+                black_options = valid_check_moves('black') 
+                white_options = valid_check_moves('white')
+                eval=minmax(black_options,white_options,alpha,beta,depth-1,True)[0] #recursion
+
+                if wasin==True: #returns back the taken piece
+                    white_locations.insert(prev_windex,prev_wlocation)
+
+                black_locations[black_options.index(i)]=prev_location
+                minEval= max(minEval,eval)
+                beta= max(beta,eval)
+                if beta<= alpha:
+                    break
+            if beta<=alpha:
+                break
+        return maxEval
+
+    
+
+
+
+    
 
 #main loop
 black_options = valid_check_moves('black') 
 white_options = valid_check_moves('white')
+
+
+
 
 run =True
 while run:
@@ -855,21 +953,7 @@ while run:
     screen.fill(color=(81,80,76))
     
     if game_start==-1:
-        #big play chess
-        screen.blit(big_font.render('Play Chess',True,(119,153,84)),(100,125))
-
-        #2players button
-        pygame.draw.rect(screen,(119,153,84),[150,250,100,50],40,7)
-        screen.blit(font.render('2 players',True,(233,237,204)),(155,265))
-
-        # vs ai as black
-        pygame.draw.rect(screen,(119,153,84),[150,350,100,50],40,7)
-        screen.blit(font.render('Against',True,(233,237,204)),(160,355))
-        screen.blit(font.render('bots',True,(233,237,204)),(175,375))
-        screen.blit(font.render('*',True,(233,237,204)),(155,400))
-        screen.blit(small_font.render('select options',True,(233,237,204)),(165,400))
-
-
+        draw_main_menu()
         for event in pygame.event.get():
             
             if event.type == pygame.QUIT:
@@ -888,9 +972,7 @@ while run:
         draw_pieces()
         draw_captured()
         draw_check()
-        white=np.array(white_pieces)
-        black=np.array(black_pieces)
-        print(evaluate())
+        print(minmax(black_options,white_options,alpha,beta,0,True))
         if not game_over:
             white_promote,black_promote, promo_index=check_promotion()
             if white_promote or black_promote:
@@ -1054,6 +1136,178 @@ while run:
         if winner != '':
             game_over=True
             draw_game_over()
+    
+    if game_start==1 and all_options_selected:
+        screen.fill(color=(119,153,84))
+        draw_board()
+        draw_pieces()
+        draw_captured()
+        draw_check()
+        if not game_over:
+            white_promote,black_promote, promo_index=check_promotion()
+            if white_promote or black_promote:
+                draw_promotion()
+                check_promo_select()
+                black_options = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+                white_options = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]]
+        if selection!=100:
+            valid_moves=check_valid_moves()
+            draw_valid(valid_moves)
+            if selected_piece == 'king':
+                draw_castling(castling_moves)
+        
+        #event handling
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run=False
+            if event.type== pygame.MOUSEBUTTONDOWN and event.button==1:
+                x_coord=event.pos[0] //50
+                y_coord=event.pos[1] //50
+                click_coords = (x_coord,y_coord)
+                black_options = valid_check_moves('black') 
+                white_options = valid_check_moves('white')
+
+                if turn_step <=1:#bots turn as white
+                    
+                    if click_coords in white_locations:
+                        #dobi lokacijo kliknjenega piecea 
+                        selection = white_locations.index(click_coords)
+                        #check selected for castle
+                        selected_piece=white_pieces[selection]
+                        if turn_step==0:
+                            turn_step=1
+                    if click_coords in valid_moves and selection != 100:
+                        white_ep=check_ep(white_locations[selection],click_coords)
+                        white_locations[selection]=click_coords
+                        white_moved[selection]=True
+                        if click_coords in black_locations:
+                            black_piece = black_locations.index(click_coords)
+                            captured_pieces_white.append(black_pieces[black_piece])
+                            black_pieces.pop(black_piece)
+                            black_locations.pop(black_piece)
+                            black_moved.pop(black_piece)
+                        #en passant checking
+                        if click_coords == black_ep:
+                            black_piece = black_locations.index((black_ep[0], black_ep[1]-1))
+                            captured_pieces_white.append(black_pieces[black_piece])
+                            black_pieces.pop(black_piece)
+                            black_locations.pop(black_piece)
+                            black_moved.pop(black_piece)
+                        black_options = valid_check_moves('black') 
+                        white_options = valid_check_moves('white')
+                        #win condition
+                        if win('black'):
+                            winner='black'
+                        if win('white'):
+                            winner='white'
+                        turn_step=2
+                        selection=100
+                        valid_moves = []
+                    # add castle
+                    elif selection!=100 and selected_piece=='king':
+                        black_options = valid_check_moves('black') 
+                        white_options = valid_check_moves('white')
+                        for q in range(len(castling_moves)):
+                            if click_coords == castling_moves[q][0]:
+                                white_locations[selection]=click_coords
+                                white_moved[selection]=True
+                                if click_coords == (1,0):
+                                    rook_coords=(0,0)
+                                else:
+                                    rook_coords=(7,0)
+                                rook_index=white_locations.index(rook_coords)
+                                white_locations[rook_index]=castling_moves[q][1]
+                                black_options = valid_check_moves('black')
+                                white_options = valid_check_moves('white')
+                                turn_step=2
+                                selection=100
+                                valid_moves = []
+                if turn_step >1:#blacks turn
+                    black_options = valid_check_moves('black') 
+                    white_options = valid_check_moves('white')
+                    if  click_coords==(15,7)or click_coords==(16,7) or click_coords==(17,7):
+                        winner='white'
+                    if click_coords in black_locations:
+                        #dobi lokacijo kliknjenega piecea 
+                        selection = black_locations.index(click_coords)
+                        #check selected for castle
+                        selected_piece=black_pieces[selection]
+                        if turn_step==2:
+                            turn_step=3
+                    if click_coords in valid_moves and selection != 100:
+                        black_ep=check_ep(black_locations[selection],click_coords)
+                        black_locations[selection]=click_coords
+                        black_moved[selection]=True
+                        if click_coords in white_locations:
+                            white_piece = white_locations.index(click_coords)
+                            captured_pieces_black.append(white_pieces[white_piece])
+                            white_pieces.pop(white_piece)
+                            white_locations.pop(white_piece)
+                            white_moved.pop(white_piece)
+                        if click_coords == white_ep:
+                            white_piece = white_locations.index((white_ep[0],white_ep[1]+1))
+                            captured_pieces_black.append(white_pieces[white_piece])
+                            white_pieces.pop(white_piece)
+                            white_locations.pop(white_piece)
+                            white_moved.pop(white_piece)
+                        black_options = valid_check_moves('black') 
+                        white_options = valid_check_moves('white')
+                        #win condition
+                        if win('white'):
+                            winner='white'
+                        if win('black'):
+                            winner='black'
+                        turn_step=0
+                        selection=100
+                        valid_moves = []
+                    # add castle
+                    elif selection!=100 and selected_piece=='king':
+                        black_options = valid_check_moves('black') 
+                        white_options = valid_check_moves('white')
+                        for q in range(len(castling_moves)):
+                            if click_coords == castling_moves[q][0]:
+                                black_locations[selection]=click_coords
+                                black_moved[selection]=True
+                                if click_coords == (1,7):
+                                    rook_coords=(0,7)
+                                else:
+                                    rook_coords=(7,7)
+                                rook_index=black_locations.index(rook_coords)
+                                black_locations[rook_index]=castling_moves[q][1]
+                                black_options = valid_check_moves('black')
+                                white_options = valid_check_moves('white')
+                                turn_step=0
+                                selection=100
+                                valid_moves = []
+            if event.type == pygame.KEYDOWN and game_over:
+                if event.key == pygame.K_RETURN:
+                    game_over=False
+                    winner=''
+                    white_pieces = ['rook', 'knight', 'bishop', 'king', 'queen', 'bishop', 'knight', 'rook',
+                    'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn']
+                    white_locations = [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0),
+                                    (0, 1), (1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1)]
+                    white_moved=[False,False,False,False,False,False,False,False,
+                                False,False,False,False,False,False,False,False]
+                    black_pieces = ['rook', 'knight', 'bishop', 'king', 'queen', 'bishop', 'knight', 'rook',
+                                    'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn', 'pawn']
+                    black_moved=[False,False,False,False,False,False,False,False,
+                                False,False,False,False,False,False,False,False]
+                    black_locations = [(0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
+                                    (0, 6), (1, 6), (2, 6), (3, 6), (4, 6), (5, 6), (6, 6), (7, 6)]
+                    captured_pieces_white = []
+                    captured_pieces_black = []
+                    turn_step = 0
+                    selection = 100
+                    valid_moves = []
+                    black_options = valid_check_moves('black') 
+                    white_options = valid_check_moves('white')
+                    game_start=-1
+        if winner != '':
+            game_over=True
+            draw_game_over()
+    
+    
     # end_time=time.time()
     # result = timeit.timeit(stmt='valid_check_moves("black") ', globals=globals(), number=5)
     # result = timeit.timeit(stmt='valid_check_moves("white") ', globals=globals(), number=5)

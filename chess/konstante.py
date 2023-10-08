@@ -1,4 +1,5 @@
 import pygame
+import numpy as np
 pygame.init()
 WIDTH=900
 HEIGHT=700
@@ -8,6 +9,7 @@ font = pygame.font.Font('freesansbold.ttf', 20)
 font1= pygame.font.Font('arial.ttf', 20)
 medium_font = pygame.font.Font('freesansbold.ttf', 40)
 big_font = pygame.font.Font('freesansbold.ttf', 50)
+small_font = pygame.font.Font('freesansbold.ttf', 12)
 timer = pygame.time.Clock()
 fps = 60
 #game variables and images
@@ -86,5 +88,8 @@ white_promote=False
 black_promote=False
 promo_index=100
 check=False
+game_start=-1
 castling_moves=[]
 called=0
+white=np.array(white_pieces)
+black=np.array(black_pieces)

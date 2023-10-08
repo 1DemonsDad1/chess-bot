@@ -1,7 +1,5 @@
-#forks work
-#antivirus works
-#rosada works
-#enpassant works
-#promotion works
+import timeit
+def a():
+    a=1+1
+    return a
 
-#everything should work now

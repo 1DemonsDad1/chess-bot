@@ -860,7 +860,7 @@ def evaluate():
 #algorithm for minmax 
 def minmax(black_options,white_options,alpha,beta,depth,max_player):
     if depth==0 or win('black'if max_player==False else 'white'):
-        return evaluate(),j
+        return evaluate(),
     
     if max_player:
         maxEval= float('-inf')
@@ -876,9 +876,7 @@ def minmax(black_options,white_options,alpha,beta,depth,max_player):
                     black_locations.pop(black_piece)
                     wasin=True
 
-                if j in black_locations:#remove pieces if piece location in enemies location
-                    black_piece = black_locations.index(j)
-                    black_locations.pop(black_piece)
+                
                 
                 black_options = valid_check_moves('black') 
                 white_options = valid_check_moves('white')
@@ -913,6 +911,8 @@ def minmax(black_options,white_options,alpha,beta,depth,max_player):
                     white_locations.pop(white_piece)
                     wasin=True
 
+                
+
                 black_options = valid_check_moves('black') 
                 white_options = valid_check_moves('white')
                 eval=minmax(black_options,white_options,alpha,beta,depth-1,True)[0] #recursion
@@ -927,7 +927,7 @@ def minmax(black_options,white_options,alpha,beta,depth,max_player):
                     break
             if beta<=alpha:
                 break
-        return maxEval
+        return minEval
 
     
 
@@ -965,6 +965,8 @@ while run:
                 print(click_coords)
                 if click_coords==((3,5)) or click_coords==((4,5)):
                     game_start=0
+                if click_coords==((3,7)) or click_coords==((4,7)):
+                    game_start=1
 
     if game_start==0:
         screen.fill(color=(119,153,84))
@@ -972,7 +974,7 @@ while run:
         draw_pieces()
         draw_captured()
         draw_check()
-        print(minmax(black_options,white_options,alpha,beta,0,True))
+        # print(minmax(black_options,white_options,alpha,beta,0,True))
         if not game_over:
             white_promote,black_promote, promo_index=check_promotion()
             if white_promote or black_promote:
@@ -1143,6 +1145,7 @@ while run:
         draw_pieces()
         draw_captured()
         draw_check()
+        print(minmax(black_options,white_options,alpha,beta,3,True))
         if not game_over:
             white_promote,black_promote, promo_index=check_promotion()
             if white_promote or black_promote:
@@ -1166,9 +1169,9 @@ while run:
                 click_coords = (x_coord,y_coord)
                 black_options = valid_check_moves('black') 
                 white_options = valid_check_moves('white')
-
-                if turn_step <=1:#bots turn as white
-                    
+                if turn_step <=1:#white turn
+                    if click_coords==(15,7)or click_coords==(16,7) or click_coords==(17,7):
+                        winner='black'
                     if click_coords in white_locations:
                         #dobi lokacijo kliknjenega piecea 
                         selection = white_locations.index(click_coords)

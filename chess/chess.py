@@ -860,32 +860,14 @@ def evaluate():
 #algorithm for minmax 
 def minmax(black_options,white_options,alpha,beta,depth,max_player):
     if depth==0 or win('black'if max_player==False else 'white'):
-        return evaluate(),
+        return evaluate() 
     
     if max_player:
         maxEval= float('-inf')
         for i in white_options:
             for j in i:#loop through all options of pieces
-                prev_location=white_locations[white_options.index(i)]#get prev location for add back (simulation)
-                white_locations[white_options.index(i)]=j #location of max players piece at index of piece = its posible location 
-                wasin=False
-                if j in black_locations:#remove pieces if piece location in enemies location
-                    black_piece = black_locations.index(j)
-                    prev_bindex=black_locations.index(j)
-                    prev_blocation=black_locations[black_piece]
-                    black_locations.pop(black_piece)
-                    wasin=True
-
                 
-                
-                black_options = valid_check_moves('black') 
-                white_options = valid_check_moves('white')
-                eval=minmax(black_options,white_options,alpha,beta,depth-1,False)[0] #recursion
-
-                if wasin==True: #returns back the taken piece
-                    black_locations.insert(prev_bindex,prev_blocation)
-
-                white_locations[white_options.index(i)]=prev_location
+                eval=minmax(black_options,white_options,alpha,beta,depth-1,False) #recursion
 
                 maxEval= max(maxEval,eval)
                 alpha= max(alpha,eval)
@@ -900,29 +882,11 @@ def minmax(black_options,white_options,alpha,beta,depth,max_player):
         minEval= float('inf')
         for i in black_options:
             for j in i:#loop through all options of pieces
-                prev_location=black_locations[black_options.index(i)]#get prev location for add back (simulation)
-                black_locations[black_options.index(i)]=j#location of max players piece at index of piece = its posible location 
-                wasin=False
-
-                if j in white_locations:#remove pieces if piece location in enemies location
-                    white_piece = white_locations.index(j)
-                    prev_windex=white_locations.index(j)
-                    prev_wlocation=white_locations[white_piece]
-                    white_locations.pop(white_piece)
-                    wasin=True
-
                 
+                eval=minmax(black_options,white_options,alpha,beta,depth-1,True) #recursion
 
-                black_options = valid_check_moves('black') 
-                white_options = valid_check_moves('white')
-                eval=minmax(black_options,white_options,alpha,beta,depth-1,True)[0] #recursion
-
-                if wasin==True: #returns back the taken piece
-                    white_locations.insert(prev_windex,prev_wlocation)
-
-                black_locations[black_options.index(i)]=prev_location
-                minEval= max(minEval,eval)
-                beta= max(beta,eval)
+                minEval= min(minEval,eval)
+                beta= min(beta,eval)
                 if beta<= alpha:
                     break
             if beta<=alpha:
@@ -941,7 +905,7 @@ white_options = valid_check_moves('white')
 
 
 
-
+doonce=0
 run =True
 while run:
     # start_time=time.time()
@@ -1145,7 +1109,10 @@ while run:
         draw_pieces()
         draw_captured()
         draw_check()
-        print(minmax(black_options,white_options,alpha,beta,3,True))
+        if doonce<1:
+            doonce+=1
+            print(minmax(black_options,white_options,alpha,beta,5,True))
+        
         if not game_over:
             white_promote,black_promote, promo_index=check_promotion()
             if white_promote or black_promote:
@@ -1226,6 +1193,7 @@ while run:
                                 selection=100
                                 valid_moves = []
                 if turn_step >1:#blacks turn
+                    doonce=0
                     black_options = valid_check_moves('black') 
                     white_options = valid_check_moves('white')
                     if  click_coords==(15,7)or click_coords==(16,7) or click_coords==(17,7):

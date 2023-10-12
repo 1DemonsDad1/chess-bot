@@ -893,17 +893,9 @@ def minmax(black_options,white_options,alpha,beta,depth,max_player):
                 break
         return minEval
 
-    
-
-
-
-    
-
 #main loop
 black_options = valid_check_moves('black') 
 white_options = valid_check_moves('white')
-
-
 
 doonce=0
 run =True
@@ -983,7 +975,7 @@ while run:
                             black_locations.pop(black_piece)
                             black_moved.pop(black_piece)
                         #en passant checking
-                        if click_coords == black_ep:
+                        if click_coords == black_ep and white_pieces[white_locations.index(click_coords)]=="pawn":
                             black_piece = black_locations.index((black_ep[0], black_ep[1]-1))
                             captured_pieces_white.append(black_pieces[black_piece])
                             black_pieces.pop(black_piece)
@@ -1040,7 +1032,7 @@ while run:
                             white_pieces.pop(white_piece)
                             white_locations.pop(white_piece)
                             white_moved.pop(white_piece)
-                        if click_coords == white_ep:
+                        if click_coords == white_ep and black_pieces[black_locations.index(click_coords)]=="pawn":
                             white_piece = white_locations.index((white_ep[0],white_ep[1]+1))
                             captured_pieces_black.append(white_pieces[white_piece])
                             white_pieces.pop(white_piece)
@@ -1111,7 +1103,7 @@ while run:
         draw_check()
         if doonce<1:
             doonce+=1
-            print(minmax(black_options,white_options,alpha,beta,5,True))
+            print(minmax(black_options,white_options,alpha,beta,10,True))
         
         if not game_over:
             white_promote,black_promote, promo_index=check_promotion()
@@ -1157,7 +1149,7 @@ while run:
                             black_locations.pop(black_piece)
                             black_moved.pop(black_piece)
                         #en passant checking
-                        if click_coords == black_ep:
+                        if click_coords == black_ep and white_pieces[white_locations.index(click_coords)]=="pawn":
                             black_piece = black_locations.index((black_ep[0], black_ep[1]-1))
                             captured_pieces_white.append(black_pieces[black_piece])
                             black_pieces.pop(black_piece)
@@ -1209,7 +1201,7 @@ while run:
                         black_ep=check_ep(black_locations[selection],click_coords)
                         black_locations[selection]=click_coords
                         black_moved[selection]=True
-                        if click_coords in white_locations:
+                        if click_coords in white_locations and black_pieces[black_locations.index(click_coords)]=="pawn":
                             white_piece = white_locations.index(click_coords)
                             captured_pieces_black.append(white_pieces[white_piece])
                             white_pieces.pop(white_piece)

@@ -26,6 +26,11 @@ captured_pieces_black = []
 turn_step = 0
 selection = 100
 valid_moves = []
+global prev1
+global prevm
+prev1=(0,0)
+prevm=(0,0)
+
 # load in game piece images (queen, king, rook, bishop, knight, pawn) x 2
 black_queen = pygame.image.load('slike/black queen.png')
 black_queen = pygame.transform.scale(black_queen, (50, 50))

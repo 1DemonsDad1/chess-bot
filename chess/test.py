@@ -1,0 +1,1 @@
+#fix minmax izpise movee ki so zadni u listu i got no clue dude GL <3

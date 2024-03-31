@@ -1,1 +1,0 @@
-Ta slika je v kompoziciji tretjin in na tej sliki je v spodnji levi tretjini

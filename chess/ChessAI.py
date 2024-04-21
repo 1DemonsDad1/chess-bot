@@ -51,7 +51,7 @@ pawn_scores = [ [0,  0,  0,  0,  0,  0,  0,  0],
                 [0.05, 0.10, 0.10,-0.20,-0.20, 0.10, 0.10,  0.05],
                 [0,  0,  0,  0,  0,  0,  0,  0]]
 
-king_scores=[[-0.3,-0.4,-0.4,-0.5,-0.5,-0.4,-0.4,-0.3], #not in use bc bug idk
+king_scores=[[-0.3,-0.4,-0.4,-0.5,-0.5,-0.4,-0.4,-0.3],
              [-0.3,-0.4,-0.4,-0.5,-0.5,-0.4,-0.4,-0.3],
              [-0.3,-0.4,-0.4,-0.5,-0.5,-0.4,-0.4,-0.3],
              [-0.3,-0.4,-0.4,-0.5,-0.5,-0.4,-0.4,-0.3],
@@ -73,7 +73,7 @@ piece_position_scores = {"wN": knight_scores,
                          "bR": rook_scores[::-1],
                          "wp": pawn_scores,
                          "bp": pawn_scores[::-1],
-                         "wK": king_scores, #not in use bc some bug idk
+                         "wK": king_scores,
                          "bK": king_scores[::-1],}
 
 
@@ -95,7 +95,7 @@ def findMoveNegaMaxAlphaBeta(game_state, valid_moves, depth, alpha, beta, turn_m
     global next_move
     if depth == 0:
         return turn_multiplier * scoreBoard(game_state)
-    #move ordering - implement later //TODO
+    #move ordering - improve later //TODO
     valid_moves=ordermoves(valid_moves)
 
     max_score = -CHECKMATE
@@ -178,9 +178,5 @@ def findRandomMove(game_state, valid_moves): #NOT RANDOM ANYMORE LOOOOL
         if score[0]<scoreBoard(game_state):
             score=scoreBoard(game_state),i
         game_state.undoMove()
-
-
-
-
 
     return score[1]

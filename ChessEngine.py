@@ -1,17 +1,17 @@
 """
-Storing all the information about the current state of chess game.
-Determining valid moves at current state.
-It will keep move log.
+Storing all information about current state of chess game.
+Določi valid moves na trenutnem stateu.
+will keep move log.
 """
 
 
 class GameState:
     def __init__(self):
         """
-        Board is an 8x8 2d list, each element in list has 2 characters.
-        The first character represents the color of the piece: 'b' or 'w'.
-        The second character represents the type of the piece: 'R', 'N', 'B', 'Q', 'K' or 'p'.
-        "--" represents an empty space with no piece.
+        Board = 8x8 2d list, vsak element in list ima 2 znaka.
+        prvi znak predstavja barvo piecea: 'b' ali 'w'.
+        drugi znak predstavlja tip piecea: 'R', 'N', 'B', 'Q', 'K' ali 'p'.
+        "--" predstavlja polje brez piecea.
         """
         self.board = [
             ["bR", "bN", "bB", "bQ", "bK", "bB", "bN", "bR"],
@@ -42,7 +42,7 @@ class GameState:
     def makeMove(self, move):
         """
         Takes a Move as a parameter and executes it.
-        (this will not work for castling, pawn promotion and en-passant)
+
         """
         self.board[move.start_row][move.start_col] = "--"
         self.board[move.end_row][move.end_col] = move.piece_moved
@@ -57,7 +57,7 @@ class GameState:
         # pawn promotion
         if move.is_pawn_promotion:
             # if not is_AI:
-            #    promoted_piece = input("Promote to Q, R, B, or N:") #take this to UI later
+            #    promoted_piece = input("Promote to Q, R, B, or N:") #make v UI kasnej
             #    self.board[move.end_row][move.end_col] = move.piece_moved[0] + promoted_piece
             # else:
             self.board[move.end_row][move.end_col] = f"{move.piece_moved[0]}Q"
@@ -91,7 +91,7 @@ class GameState:
 
     def undoMove(self):
         """
-        Undo the last move
+        Undo last move
         """
         if len(self.move_log) == 0:
             return
@@ -129,7 +129,7 @@ class GameState:
 
     def updateCastleRights(self, move):
         """
-        Update the castle rights given the move
+        Update castle rights given the move
         """
         if move.piece_captured == "bR":
             if move.end_col == 0:  # left rook
@@ -168,7 +168,7 @@ class GameState:
         """
         temp_castle_rights = CastleRights(self.current_castling_rights.wks, self.current_castling_rights.bks,
                                           self.current_castling_rights.wqs, self.current_castling_rights.bqs)
-        # advanced algorithm
+        
         moves = []
         self.in_check, self.pins, self.checks = self.checkForPinsAndChecks()
 
@@ -194,7 +194,7 @@ class GameState:
             if self.inCheck():
                 self.checkmate = True
             else:
-                # TODO stalemate on repeated moves
+                # TODO stalemate on repeated moves and 50 move rule
                 self.stalemate = True
         else:
             self.checkmate = False
@@ -233,7 +233,7 @@ class GameState:
 
     def inCheck(self):
         """
-        Determine if a current player is in check
+        if a current player is in check
         """
         if self.white_to_move:
             return self.squareUnderAttack(self.white_king_location[0], self.white_king_location[1])
@@ -242,7 +242,7 @@ class GameState:
 
     def squareUnderAttack(self, row, col):
         """
-        Determine if enemy can attack the square row col
+        če enemy lahko attacka square row col
         """
         self.white_to_move = not self.white_to_move  # switch to opponent's point of view
         opponents_moves = self.getAllPossibleMoves()
@@ -253,7 +253,7 @@ class GameState:
 
     def getAllPossibleMoves(self):
         """
-        All moves without considering checks.
+        All moves without checks.
         """
         moves = []
         for row in range(len(self.board)):
@@ -597,7 +597,7 @@ class Move:
 
     def __eq__(self, other):
         """
-        Overriding the equals method.
+        Prepis equals methoda.
         """
         return self.moveID == other.moveID if isinstance(other, Move) else False
 
@@ -618,8 +618,6 @@ class Move:
             return self.getRankFile(self.end_row, self.end_col)
         else:
             return self.piece_moved[1] + self.getRankFile(self.end_row, self.end_col)
-
-        # TODO Disambiguating moves
 
     def getRankFile(self, row, col):
         return self.cols_to_files[col] + self.rows_to_ranks[row]

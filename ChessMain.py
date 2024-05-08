@@ -1,7 +1,7 @@
 """
-Main driver file.
+Main driver.
 Handling user input.
-Displaying current GameStatus object.
+Displaying GameStatus objekt.
 """
 
 import pygame as p
@@ -21,11 +21,12 @@ lightcolor= (233,237,204)
 darkcolor=(119,153,84)
 mapname="clasic"
 format="png"
+drawmore=False
 
 def loadImages():
     """
-    Initialize a global directory of images.
-    This will be called exactly once in the main.
+    kreira globaln directory za image.
+    izvede se samo enkrat v mainu in to je to.
     """
     pieces = ['wp', 'wR', 'wN', 'wB', 'wK', 'wQ', 'bp', 'bR', 'bN', 'bB', 'bK', 'bQ']
     for piece in pieces:
@@ -34,12 +35,10 @@ def loadImages():
         )
 
 
-
-
 def main():  # sourcery skip: avoid-builtin-shadow
     """
-    The main driver for our code.
-    This will handle user input and updating the graphics.
+    main driver kode.
+    handles user input in updatea grafike.
     """
     p.init()
     p.display.set_caption("ChessEngine")
@@ -49,6 +48,8 @@ def main():  # sourcery skip: avoid-builtin-shadow
     small_font = p.font.Font('freesansbold.ttf', 12)
     
     def drawMenu():
+        global drawmore
+        
         p.draw.rect(screen,(81,80,76),(0,0,770,512))
 
         #playchess
@@ -102,31 +103,40 @@ def main():  # sourcery skip: avoid-builtin-shadow
 
         #----------------------Pieces-prewiev-----------------------#
 
+        #squares for the piece preview
+        for i in range(12):
+            p.draw.rect(screen,(lightcolor if i%2==0 else darkcolor) if i<=5 else (darkcolor if i%2==0 else lightcolor),[(350+50*i) if i<=5 else (50+50*i),355 if i<=5 else 405,50,50])
+
+        #Piece preview
         pieces = ['wp', 'wR', 'wN', 'wB', 'wK', 'wQ', 'bp', 'bR', 'bN', 'bB', 'bK', 'bQ']
         for ind,piece in enumerate(pieces):
-            screen.blit(p.transform.scale(p.image.load(f"images/{mapname}/{piece}.{format}"), (50, 50)),((350+50*ind) if ind<=5 else (50+50*ind),350 if ind<=5 else 400))
+            screen.blit(p.transform.scale(p.image.load(f"images/{mapname}/{piece}.{format}"), (50, 50)),((350+50*ind) if ind<=5 else (50+50*ind),355 if ind<=5 else 405))
 
 
+        #------------------------------------------------Piece-skins--------------------------------------------------#
 
         #chess pieces
-        p.draw.rect(screen,darkcolor,[350,300,50,50],40,7)
-        screen.blit(big_font.render('1',True,lightcolor),(362,303))
-        
-        p.draw.rect(screen,darkcolor,[400,300,50,50],40,7)
-        screen.blit(big_font.render('2',True,lightcolor),(412,303))
-        
-        p.draw.rect(screen,darkcolor,[450,300,50,50],40,7)
-        screen.blit(big_font.render('3',True,lightcolor),(462,303))
-        
-        p.draw.rect(screen,darkcolor,[500,300,50,50],40,7)
-        screen.blit(big_font.render('4',True,lightcolor),(512,303))
-        
-        p.draw.rect(screen,darkcolor,[550,300,50,50],40,7)
-        screen.blit(big_font.render('5',True,lightcolor),(562,303))
+        for i in range(6):
+            p.draw.rect(screen,darkcolor,[350+50*i,300,50,50],0,7)
+            screen.blit(big_font.render(f'{i+1}',True,lightcolor),(362+50*i,303)) 
 
-        p.draw.rect(screen,darkcolor,[600,300,50,50],40,7)
-        screen.blit(big_font.render('6',True,lightcolor),(612,303))
         
+        # more pieces button
+        p.draw.rect(screen,(0,0,0),[650,340,12,12],0,2)
+        p.draw.rect(screen,(0,0,0),[654,341,4,10],0,1) if drawmore else p.draw.rect(screen,(255,255,255),[654,341,4,10],0,1)
+        p.draw.rect(screen,(255,255,255),[651,344,10,4],0,1)
+
+        if drawmore==True:
+            p.draw.rect(screen,darkcolor,[700,250,50,50],0,7)
+            screen.blit(big_font.render('7',True,lightcolor),(712,253))
+
+            p.draw.rect(screen,darkcolor,[700,300,50,50],0,7)
+            screen.blit(big_font.render('8',True,lightcolor),(712,303))
+
+            p.draw.rect(screen,darkcolor,[700,350,50,50],0,7)
+            screen.blit(big_font.render('9',True,lightcolor),(712,353))
+        #------------------------------------------------End-of-draw-------------------------------------------------#
+        return #da skrijem komentar end of draw 
     
     screen = p.display.set_mode((BOARD_WIDTH + MOVE_LOG_PANEL_WIDTH, BOARD_HEIGHT))
     clock = p.time.Clock()
@@ -145,8 +155,6 @@ def main():  # sourcery skip: avoid-builtin-shadow
     move_log_font = p.font.SysFont("Arial", 14, False, False)
     player_one = True  # if a human is playing white, then this will be True, else False
     player_two = False  # if a hyman is playing white, then this will be True, else False
-
-
     game=0
     while game==0:
         drawMenu()
@@ -159,6 +167,7 @@ def main():  # sourcery skip: avoid-builtin-shadow
                     global darkcolor
                     global mapname
                     global format
+                    global drawmore
 
                     if location[0]<=200 and location[0]>=100 and location[1]>=200 and location[1]<=250:#100-200x, 200-250y
                                                                                                         #100-200x, 300-350y
@@ -220,7 +229,22 @@ def main():  # sourcery skip: avoid-builtin-shadow
                         format="svg"
 
                     #---------------------------------------MORE-SKINS-------------------------------------------#
-                    #TODO make more skins and showcase of pieces/preview
+                    #button and functionality
+                    if location[0]<=660 and location[0]>=651 and location[1]>=340 and location[1]<=350:#buton +
+                        drawmore= not drawmore
+                    
+                    if drawmore and location[0]<=750 and location[0]>=700 and location[1]>=250 and location[1]<=300: #skin 7
+                        mapname="letter"
+                        format="svg"
+                    
+                    if drawmore and location[0]<=750 and location[0]>=700 and location[1]>=300 and location[1]<=350: #skin 8
+                        mapname="KiwenSuwi"
+                        format="svg"
+
+                    if drawmore and location[0]<=750 and location[0]>=700 and location[1]>=350 and location[1]<=400: #skin 9
+                        mapname="shapes"
+                        format="svg"
+
 
                 if e.type == p.QUIT:
                     p.quit()
@@ -338,9 +362,6 @@ def main():  # sourcery skip: avoid-builtin-shadow
             clock.tick(MAX_FPS)
             p.display.flip()
 
-
-
-
     if game==2:
             
         while running:
@@ -351,7 +372,7 @@ def main():  # sourcery skip: avoid-builtin-shadow
                     sys.exit()
                 # mouse handler
                 elif e.type == p.MOUSEBUTTONDOWN:
-                    if not game_over:
+                    if not game_over and human_turn:
                         location = p.mouse.get_pos()  # (x, y) location of the mouse
                         col = location[0] // SQUARE_SIZE
                         row = location[1] // SQUARE_SIZE
@@ -373,9 +394,6 @@ def main():  # sourcery skip: avoid-builtin-shadow
                             if not move_made:
                                 player_clicks = [square_selected]
                 
-
-                
-
                 # key handler
                 elif e.type == p.KEYDOWN:
                     if e.key == p.K_z:  # undo when 'z' is pressed
@@ -427,7 +445,7 @@ def main():  # sourcery skip: avoid-builtin-shadow
                 if not move_finder_process.is_alive():
                     ai_move = return_queue.get()
                     if ai_move is None:
-                        ai_move = ChessAI.findRandomMove(game_state, valid_moves)
+                        ai_move = ChessAI.findMove(game_state, valid_moves)
                     game_state.makeMove(ai_move)
                     move_made = True
                     animate = True
@@ -472,11 +490,11 @@ def main():  # sourcery skip: avoid-builtin-shadow
 
 def drawGameState(screen, game_state, valid_moves, square_selected):
     """
-    Responsible for all the graphics within current game state.
+    Vse grafike v trenutnem gamestateu
     """
-    drawBoard(screen)  # draw squares on the board
+    drawBoard(screen)  # draw squares on board
     highlightSquares(screen, game_state, valid_moves, square_selected)
-    drawPieces(screen, game_state.board)  # draw pieces on top of those squares
+    drawPieces(screen, game_state.board)  # draw pieces on squares
 
 
 def drawBoard(screen):
@@ -530,8 +548,7 @@ def drawPieces(screen, board):
 
 def drawMoveLog(screen, game_state, font):
     """
-    Draws the move log.
-
+    Nariše move log.
     """
     move_log_rect = p.Rect(BOARD_WIDTH, 0, MOVE_LOG_PANEL_WIDTH, MOVE_LOG_PANEL_HEIGHT)
     p.draw.rect(screen, p.Color('black'), move_log_rect)
@@ -562,7 +579,6 @@ def drawMoveLog(screen, game_state, font):
 def drawEndGameText(screen, text,num):
     
     if num==1:
-        
         font = p.font.SysFont("Helvetica", 32, True, False)
         text_object = font.render(text, False, p.Color(81,80,76))
         text_location = p.Rect(0, 0, BOARD_WIDTH, BOARD_HEIGHT).move(BOARD_WIDTH / 2 - text_object.get_width() / 2,
@@ -570,6 +586,7 @@ def drawEndGameText(screen, text,num):
         screen.blit(text_object, text_location)
         text_object = font.render(text, False, p.Color('white'))
         screen.blit(text_object, text_location.move(2, 2))
+        
     if num==0:
         font = p.font.SysFont("Helvetica", 32, True, False)
         text_object = font.render(text, False, p.Color(81,80,76))

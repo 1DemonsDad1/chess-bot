@@ -1,19 +1,19 @@
 """
-Handling the AI moves.
+Handling AI moves.
 """
 import random
 import numpy as np
 
 piece_score = {"K": 10000, "Q": 9, "R": 5, "B": 3, "N": 3, "p": 1}
 
-knight_scores =[[-0.50,-0.40,-0.30,-0.30,-0.30,-0.30,-0.40,-0.50],
-                [-0.40,-0.20,  0,  0,  0,  0,-0.20,-0.40],
-                [-0.30,  0, 0.10, 0.15, 0.15, 0.10,  0,-0.30],
-                [-0.30,  0.05, 0.15, 0.20, 0.20, 0.15,  0.05,-0.30],
-                [-0.30,  0, 0.15, 0.20, 0.20, 0.15,  0,-0.30],
-                [-0.30,  0.05, 0.10, 0.15, 0.15, 0.10,  0.05,-30],
-                [-0.40,-0.20,  0,  0.05,  0.05,  0,-0.20,-0.40],
-                [-0.50,-0.40,-0.30,-0.30,-0.30,-0.30,-0.40,-0.50]]
+knight_scores =[[-0.50,-0.40,-0.30,-0.30,-0.30,-0.30,-0.40, -0.50],
+                [-0.40,-0.20,    0,    0,    0,    0,-0.20, -0.40],
+                [-0.30,    0, 0.10, 0.15, 0.15, 0.10,    0, -0.30],
+                [-0.30, 0.05, 0.15, 0.20, 0.20, 0.15, 0.05, -0.30],
+                [-0.30,    0, 0.15, 0.20, 0.20, 0.15,    0, -0.30],
+                [-0.30, 0.05, 0.10, 0.15, 0.15, 0.10, 0.05,   -30],
+                [-0.40,-0.20,    0, 0.05, 0.05,    0,-0.20, -0.40],
+                [-0.50,-0.40,-0.30,-0.30,-0.30,-0.30,-0.40, -0.50]]
 
 bishop_scores =[[-0.20,-0.10,-0.10,-0.10,-0.10,-0.10,-0.10,-0.20],
                 [-0.10,  0,  0,  0,  0,  0,  0,-0.10],
@@ -146,7 +146,7 @@ def valueofpiece(piece):
 
 def scoreBoard(game_state):
     """
-    Score the board. A positive score is good for white, a negative score is good for black.
+    Score  board. positive score good for white, negative scorec good for black.
     """
     if game_state.checkmate:
         return -CHECKMATE if game_state.white_to_move else CHECKMATE
@@ -168,9 +168,9 @@ def scoreBoard(game_state):
     return score
 
 
-def findRandomMove(game_state, valid_moves): #NOT RANDOM ANYMORE LOOOOL
+def findMove(game_state, valid_moves):
     """
-    Picks and returns a random valid move.
+    Picks and returns the best valid move.
     """
     score=0,None
     for i in valid_moves:

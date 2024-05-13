@@ -162,7 +162,6 @@ def main():  # sourcery skip: avoid-builtin-shadow
         for e in p.event.get():
                 if e.type == p.MOUSEBUTTONDOWN:
                     location = p.mouse.get_pos()  # (x, y) location of the mouse
-                    print(location)
                     global lightcolor
                     global darkcolor
                     global mapname
